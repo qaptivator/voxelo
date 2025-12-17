@@ -2,9 +2,13 @@
 
 web replicube recreation, voxelo
 
+link: https://qaptivator.github.io/voxelo/
+
+# description
+
 replicube is a fun little procedural voxel game, where using lua you make simple control flows to render out cubes (either empty or with a color). i found it cool on how it trains you to make code for every cube (kind of like an introduction to shaders), so i made my own recreation. i also had a fun time forcing myself to use vanilla js and html. alpine js was also REALLY awesome, since its basically vue but usable literally anywhere. this took me a couple of days to make, and gemini ai helped me out a lot.
 
-to play this game, simply clone this repository and open `index.html` in your browser. *p.s. it works offline too!*
+play this game [here](https://qaptivator.github.io/voxelo/), or simply clone this repository and open `index.html` in your browser. *p.s. it works offline too!*
 
 # credits
 
