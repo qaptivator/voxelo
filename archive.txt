@@ -1,0 +1,274 @@
+<!-- keywords are violet, numbers are orange, builtins are cyan -->
+	<script>	
+	function styleLua(v) {
+		// --- 1. Token Definitions ---
+		const replacers = [
+			{
+				// Lua Keywords (Magenta)
+				regex: /\b(and|break|do|else|elseif|end|false|for|function|goto|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b/g,
+				val: "#FF00FF", 
+				code: "K" 
+			},
+			{
+				// Numbers (Orange)
+				regex: /(\d+\.?\d*)/g, 
+				val: "#FFA500", 
+				code: "N" 
+			}
+		];
+
+		// --- 2. Helper for replacement (Must be inside or defined globally) ---
+		// Define replacement utility function
+		const replaceAt = (str, index, length, replacement) => {
+			if (index >= str.length) return str;
+			return str.substring(0, index) + replacement.repeat(length) + str.substring(index + length);
+		};
+
+		// --- 3. Tokenize Line Function ---
+		const findTokens = (line) => {
+			let rtrnText = "0".repeat(line.length); // Initialize map with '0' (default color)
+			
+			for(let x = 0; x < replacers.length; x++){
+				let matches = [...line.matchAll(replacers[x].regex)];
+				
+				matches.forEach((match) => {
+					// Apply the token code (K or N) to the map
+					rtrnText = replaceAt(rtrnText, match.index, match[0].length, replacers[x].code);
+				});
+			}
+			return rtrnText;
+		};
+
+		// --- 4. Convert Token Map to CSS Gradient Function ---
+		const convertToCSS = (line, codeLineLength) => {
+			let rtrnString = "linear-gradient(to right, ";
+			let previousChar = "";
+			let previousColour = "white"; // Default text color (matches the <pre> background for contrast)
+			
+			for(let z = 0; z < line.length; z++){
+				if(line[z] != previousChar){
+					// Find the color for the current token code
+					let currentColor = line[z] === '0' ? "white" : (
+						replacers.find(r => r.code === line[z])?.val || "white"
+					);
+
+					// Append a color stop: previous color ends at z 'ch', new color starts at z 'ch'
+					rtrnString += `${previousColour} ${z}ch, ${currentColor} ${z}ch, `; 
+					
+					previousChar = line[z];
+					previousColour = currentColor;
+				}
+			}
+			
+			// Finish the gradient: ensure the final segment reaches the end
+			rtrnString += `${previousColour} ${codeLineLength}ch)`; 
+			return rtrnString;
+		};
+
+		// --- 5. Main Processing Logic ---
+		const arrayOfLines = v.split("\n"); 
+		let CSS = [];
+		let backgroundSize = "";
+		const LINE_HEIGHT_PX = 22;
+		
+		// Calculate max width for responsive background-size
+		const maxLineLength = arrayOfLines.reduce((max, line) => Math.max(max, line.length), 0);
+		const backgroundWidthCh = Math.max(50, maxLineLength + 5); 
+
+		for(let y = 0; y < arrayOfLines.length; y++){
+			const line = arrayOfLines[y];
+			const tokenMap = findTokens(line);
+			
+			// 3. Generate the gradient for this line
+			CSS.push(convertToCSS(tokenMap, line.length)); 
+			
+			// 4. Build the background-size list (width in 'ch', height in 'px')
+			backgroundSize += `${backgroundWidthCh}ch ${LINE_HEIGHT_PX}px, `;
+		}
+		
+		// Clean up the trailing comma and space
+		backgroundSize = backgroundSize.slice(0,-2).trim();
+		
+		/* Add a dark text shadow for visibility on dark background, compensating for the 'transparent' text color */
+		// 5. Assemble the final, complete CSS string
+		/*let finalString = `
+			background: ${CSS.join(", ")}; 
+			background-repeat: no-repeat; 
+			background-size: ${backgroundSize}; 
+			background-clip: text; 
+			-webkit-background-clip: text; 
+			color: transparent; 
+			width: ${backgroundWidthCh}ch; 
+			font-family: monospace; 
+			font-size: 20px; 
+			line-height: ${LINE_HEIGHT_PX}px;
+			text-shadow: 0 0 1px rgba(255, 255, 255, 0.01); 
+		`.replace(/\s+/g, ' ').trim(); 
+		return finalString;*/
+		
+		return {
+			"background": CSS.join(", "),
+			"background-repeat": "no-repeat",
+			"background-size": String(backgroundSize),
+			"background-clip": "text",
+			"-webkit-background-clip": "text",
+			"color": "transparent",
+			"width": String(backgroundWidthCh) + "ch",
+			"font-family": "monospace",
+			"font-size": "20px",
+			"line-height": String(LINE_HEIGHT_PX) + "px",
+			"text-shadow": "0 0 1px rgba(255, 255, 255, 0.01)",
+		}
+	}
+	
+	/*document.addEventListener('alpine:init', () => {
+		Alpine.data('appData', {
+			luaCode: '',
+			luaStyle: '',
+ 
+			luaStyleWatcher(v) {
+				luaStyle = styleLua(v);
+			}
+		})
+	})*/
+	    /*document.addEventListener('alpine:init', () => {
+        Alpine.data('appData', () => ({
+            open: false,
+			luaCode: '',
+			luaStyle: {},
+			init() {
+				this.luaCode = ''
+				this.luaStyle = {
+					"background": "",
+					"background-repeat": "no-repeat",
+					"background-size": "",
+					"background-clip": "text",
+					"-webkit-background-clip": "text",
+					"color": "transparent",
+					"width": "20ch",
+					"font-family": "monospace",
+					"font-size": "20px",
+					"line-height": "22px",
+					"text-shadow": "0 0 1px rgba(255, 255, 255, 0.01)",
+				}
+				console.log(this)
+				//this.$watch('luaCode', this.luaCodeWatcher)
+			},
+            toggle() { this.open = !this.open },
+			luaCodeWatcher(v) {
+				const newStyles = styleLua(this.luaCode);
+				Object.assign(this.luaStyle, newStyles);
+				console.log('luaCodeWatcher', this.luaStyle)
+			}
+        }));
+    });
+	<!--<button @click="toggle()">Toggle Dropdown</button>
+	<div x-show="open">Dropdown Content</div>
+	<div style="background: black; width: 300px;">
+		<textarea x-model="luaCode" :style="luaStyle" rows="5" cols="40"></textarea>
+	</div>
+	<button @click="luaCodeWatcher" type="button">go</button>-->
+	<!--<div x-data="appData()">
+	<textarea x-model="luaCode" :style="luaStyle" rows="5" cols="40"></textarea>
+	<p x-text="luaCode"></p>
+	</div>-->*/
+	</script>
+	
+	------------------------------------
+	
+	<script>
+	function throttle(func, limit) {
+	  let inThrottle;
+	  return function(...args) {
+		const context = this;
+		if (!inThrottle) {
+		  func.apply(context, args);
+		  inThrottle = true;
+		  setTimeout(() => inThrottle = false, limit);
+		}
+	  };
+	}
+
+	document.addEventListener('alpine:init', () => {
+        Alpine.data('appData', () => ({
+			luaCode: '',
+			trueLuaCode: '',
+			
+			init() {
+				this.luaCodeWatcher = throttle(() => {
+					console.log('throttled execution');
+					this.trueLuaCode = this.luaCode;
+				}, 1000);
+				this.$watch('luaCode', () => this.luaCodeWatcher())
+			}
+        }));
+    });
+	</script>
+	
+	------------------------------------
+	
+	//renderCube(x,y,z,1)
+	/*let c = 7+y+4
+	if (Math.abs(x)<2 && Math.abs(y)<2) {
+		c = 0
+	}
+	if (Math.abs(z)<2 && Math.abs(y)<2) {
+		c = 0
+	}
+	if (Math.abs(x)<2 && Math.abs(z)<2) {
+		c = 0
+	}
+	renderCube(x,y,z,c)*/
+	
+	------------------------------------
+	
+	/*console.log('xyz',_x,y,z,'result',voxelTask(_x, y, z))
+	const colorResult = voxelTask(_x, y, z) ?? 0;
+	if (colorResult !== null && colorResult !== undefined) {
+		renderCube(_x, y, z, colorResult);
+	}*/
+	//interop.push(this.L, this.voxelTask); 
+
+	// Push the 3 arguments
+	//lua.lua_pushnumber(this.L, _x);
+	//lua.lua_pushnumber(this.L, y);
+	//lua.lua_pushnumber(this.L, z);
+
+	// Call: 3 arguments, 1 result
+	/*if (lua.lua_pcall(this.L, 3, 1, 0) === lua.LUA_OK) {
+		const colorResult = interop.tojs(this.L, -1); // Get result
+		lua.lua_pop(this.L, 1); // Remove result from stack
+		
+		if (colorResult > 0) {
+			renderCube(_x, y, z, colorResult);
+		}
+	} else {
+		//console.error(lua.lua_tojsstring(L, -1));
+		lua.lua_pop(this.L, 1);
+	}*/
+	
+	------------------------------------
+	
+	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-lua.min.js"></script>-->
+	
+	<!--<div style="position: relative; font-family: monospace;">
+	<pre 
+		aria-hidden="true" 
+		style="margin: 0; padding: 10px; position: absolute; pointer-events: none; white-space: pre-wrap; word-wrap: break-word;"
+	><code class="language-lua" x-text="luaCode + '\n'"></code></pre>
+
+	<textarea 
+		x-model="luaCode"
+		@input="Prism.highlightAll()"
+		style="margin: 0; padding: 10px; background: transparent; color: transparent; caret-color: white; position: relative; z-index: 1; white-space: pre-wrap; word-wrap: break-word;"
+		spellcheck="false"
+	></textarea>
+	</div>-->
+	
+	------------------------------------
+	
+	<!--<script src="./fengari-interop.js"></script>-->
+	
+	------------------------------------
