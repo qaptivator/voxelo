@@ -10,6 +10,19 @@ replicube is a fun little procedural voxel game, where using lua you make simple
 
 play this game [here](https://qaptivator.github.io/voxelo/), or simply clone this repository and open `index.html` in your browser. *p.s. it works offline too!*
 
+# todo
+
+- [ ] save code to localstorage
+- [ ] add small documentation tab
+- [ ] add a header with the title (voxelo), tabs, link to this github repo, and so on
+- [ ] maybe make a tutorial
+- [ ] add a color chart below the code
+- [ ] add side by side layout
+- [ ] add full support for mobile
+- [ ] add the cross section dragables
+- [ ] add coordinates to each of the 4 axis by remaking AxesHelper from scratch
+- [ ] move the Y line of the axes helper from the origin to the tip of Z axis
+
 # credits
 
 - [Replicube](https://store.steampowered.com/app/3401490/Replicube/) (a steam game)
