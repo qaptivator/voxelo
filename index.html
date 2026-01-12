@@ -61,6 +61,12 @@ return c`
 				const { lua, lauxlib, lualib, to_luastring, interop } = fengari
 				const THREE = window.THREE
 				
+				// load stuff from localstorage
+				const savedCode = localStorage.getItem('voxelo_code');
+				if (savedCode) {
+					this.luaCode = savedCode;
+				}
+				
 				// create the scene
 				const canvas = document.querySelector('#threeCanvas')
 				
@@ -221,6 +227,18 @@ return c`
 					if (lineText.match(/(then|do|repeat)$/)) indent += "    "
 					document.execCommand('insertText', false, '\n' + indent);
 				}
+				// we save it here so it will be instantaneous
+				localStorage.setItem('voxelo_code', this.luaCode)
+			},
+			
+			loadDemo() {
+				this.luaCode = STARTING_CODE
+				localStorage.setItem('voxelo_code', this.luaCode)
+			},
+			
+			resetStorage() {
+				this.luaCode = ''
+				localStorage.setItem('voxelo_code', this.luaCode)
 			}
 		}))
 	})
@@ -229,11 +247,12 @@ return c`
 	[x-cloak] { display: none !important; }
 	
 	:root {
-	  --canvas-width: 600px;
+		--canvas-width: 600px;
 	}
 	
 	body {
-	  background-color: #1a1a1a;
+		background-color: #1a1a1a;
+		font-family: monospace;
 	}
 	
 	.color-bar {
@@ -309,6 +328,31 @@ return c`
 		white-space: pre-wrap;
 		box-sizing: border-box;
 	}
+	
+	#footer {
+		color: white;
+		display: flex;
+		gap: 0.5rem;
+		padding-left: 1rem;
+		align-items: center;
+		background-color: black;
+		font-family: monospace;
+	}
+	
+	#footer button {
+		all: unset;
+		cursor: pointer;
+		color: white;
+		padding: 0.5rem;
+		background-color: black;
+		font-family: monospace;
+		font-style: italic;
+	}
+	
+	#footer button a {
+		all: unset;
+		cursor: pointer;
+	}
 
 	#threeCanvas {
 		width: 100% !important;
@@ -338,7 +382,15 @@ return c`
 				class="editor-error"
 			>!</div>
 		</div>
-		<canvas id="threeCanvas"></canvas>
+		<div>
+			<canvas id="threeCanvas"></canvas>
+			<div id="footer">
+				voxelo
+				<button @click="resetStorage" type="button">new</button>
+				<button @click="loadDemo" type="button">demo</button>
+				<button type="button"><a href="https://github.com/qaptivator/voxelo" target="_blank" rel="noopener noreferrer">github</a></button>
+			</div>
+		</div>
 	</div>
 </body>
 </html>
