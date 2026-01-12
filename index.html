@@ -196,6 +196,27 @@ return c`
 					this.showError = true
 					console.error("Lua Compilation Error:", err)
 				}
+			},
+			
+			onKeyDown(e) {
+				if (e.key === 'Tab') {
+					e.preventDefault()
+					const start = e.target.selectionStart
+					const end = e.target.selectionEnd
+					//tab sizes were inconsistent for some odd reason
+					//e.target.value = e.target.value.substring(0, start) + "\t" + e.target.value.substring(end)
+					e.target.value = e.target.value.substring(0, start) + "    " + e.target.value.substring(end)
+					e.target.selectionStart = e.target.selectionEnd = start + 4
+				} else if (e.key === 'Enter') {
+					e.preventDefault();
+					const start = e.target.selectionStart;
+					const end = e.target.selectionEnd;
+					const lastNewLine = e.target.value.lastIndexOf('\n', start - 1);
+					const lineText = e.target.value.substring(lastNewLine + 1, start);
+					let indent = lineText.match(/^\s*/)[0];
+					if (lineText.match(/(then|do|repeat)$/)) indent += "    "
+					document.execCommand('insertText', false, '\n' + indent);
+				}
 			}
 		}))
 	})
@@ -213,7 +234,8 @@ return c`
 		<div style="position: relative; display: inline-block; width: calc(var(--canvas-width) - 35px); margin: 0;">
 			<textarea 
 				x-model.debounce.500ms="luaCode" 
-				style="font-size: 1.125rem; line-height: 1.5; display: block; width: 100%; background-color: #1e1e1e; color: white; border: 2px solid black; padding: 0.5rem 1rem 0.5rem 1rem; margin: 0;" 
+				@keydown="onKeyDown"
+				style="font-size: 1.125rem; line-height: 1.5; display: block; width: 100%; background-color: #1e1e1e; color: white; border: 2px solid black; padding: 0.5rem 1rem 0.5rem 1rem; margin: 0; white-space: pre-wrap;" 
 				rows="6" 
 				cols="40">
 			</textarea>
