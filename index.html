@@ -32,6 +32,10 @@ end
 return c`
 	// --------------
 	
+	// todo:
+	// - make this side by side on pc and vertical on mobile
+	// - make the canvas width vary depending on your device, so its not just fixed
+	
 	function* range(start, end, step = 1) {
 		if (end === undefined) {
 			end = start;
@@ -229,16 +233,49 @@ return c`
 	body {
 	  background-color: #1a1a1a;
 	}
+	.color-bar {
+		width: 100%;
+		padding: 0.5rem;
+		text-align: center;
+		font-weight: 700;
+		font-family: monospace;
+		color: white !important;
+		text-shadow: 1px 1px 0px black;
+	}
+	.text-white {
+		color: white;
+	}
+	.text-black {
+		color: black;
+	}
 	</style>
-	<div x-data="appData()" style="display: flex; flex-direction: column;">
-		<div style="position: relative; display: inline-block; width: calc(var(--canvas-width) - 35px); margin: 0;">
+	<div x-data="appData()" style="display: flex; flex-direction: column; width: 100%; align-items: center;">
+		<div style="position: relative; display: inline-block; margin: 0;">
 			<textarea 
 				x-model.debounce.500ms="luaCode" 
 				@keydown="onKeyDown"
-				style="font-size: 1.125rem; line-height: 1.5; display: block; width: 100%; background-color: #1e1e1e; color: white; border: 2px solid black; padding: 0.5rem 1rem 0.5rem 1rem; margin: 0; white-space: pre-wrap;" 
+				style="font-family: monospace; font-size: 1.125rem; line-height: 1.5; display: block; width: calc(var(--canvas-width) - 35px); height: 200px; background-color: #1e1e1e; color: white; border: 2px solid black; padding: 0.5rem 1rem 0.5rem 1rem; margin: 0; white-space: pre-wrap;" 
 				rows="6" 
 				cols="40">
 			</textarea>
+			<div style="display: flex; width: var(--canvas-width);">
+				<div class="color-bar text-white" style="background-color: #dfe9f5">1</div>
+				<div class="color-bar text-white" style="background-color: #687595">2</div>
+				<div class="color-bar text-white" style="background-color: #101518">3</div>
+				<div class="color-bar text-white" style="background-color: #f8aaa8">4</div>
+				<div class="color-bar text-white" style="background-color: #d4689a">5</div>
+				<div class="color-bar text-white" style="background-color: #782d96">6</div>
+				<div class="color-bar text-white" style="background-color: #e93562">7</div>
+				<div class="color-bar text-white" style="background-color: #f2825c">8</div>
+				<div class="color-bar text-white" style="background-color: #ffc86e">9</div>
+				<div class="color-bar text-white" style="background-color: #88c34d">10</div>
+				<div class="color-bar text-white" style="background-color: #3f9e5a">11</div>
+				<div class="color-bar text-white" style="background-color: #373461">12</div>
+				<div class="color-bar text-white" style="background-color: #4854a8">13</div>
+				<div class="color-bar text-white" style="background-color: #7198d9">14</div>
+				<div class="color-bar text-white" style="background-color: #9e5252">15</div>
+				<div class="color-bar text-white" style="background-color: #4e2537">16</div>
+			</div>
 			<div
 				x-show="showError" 
 				x-transition
